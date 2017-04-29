@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Neighborhood Map Project</title>
+    <style type="text/css">
+        * {box-sizing: border-box;}
+        html, body { height: 100%; margin: 0; padding: 0; font-family: Arial; }
+        #map { height: 100%; }
+        .container {float: left; height: 100%;}
+        .location-list { background: rgba(150,150,150,.75); border: 1px solid #999; height: 100%; padding: 10px 10xp 30px 10px; width: 220px; overflow: auto;}
+        .filter-bar { padding: 2px; background: #666;}
+        #filter {width: 80%; height: 30px;}
+        label {color: white;}
+        .marker-btn {width: 100%; 0; padding: 6px 0 6px 12px; font-size: 0.8rem; text-align: left; background: #eee; border-bottom: 1px solid #ccc; border-top: 1px solid #fff;}
+        .marker-btn:hover {background: #ddd; cursor: pointer;}
+        .title {font-weight: bold; }
+        .private{color: #999; font-style: italic;}
+        .marker-animating {color: #888; background: #fff;}
+        .hidden {display: none;}
+        .attribution {display: block; color: #999; font-size: 11px; margin-top: 0.75rem; text-align: center; text-decoration: none;}
+        #infoWin {opacity: 0; transition: opacity .5s .1s;}
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="location-list">
+        <h3>Monroe Food</h3>
+        <div class="filter-bar">
+            <input data-bind="textInput: search" type="input" id="filter" placeholder="Filter">
+        </div>
+        <div class="folders" data-bind="foreach: locations">
+            <div  class="marker-btn" data-bind="text: title, click: $root.toggleAnimateMarker, visible: filtered"></div>
+        </div>
+    </div>
+</div>
+<div id="map"></div>
+<!--<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>-->
+<script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD8mRmSgCF0Gj9jE8-LiVLg9Mq5Vq4ncS4&v=3"></script>
+<script src="js/lib/knockout-3.4.2.js"></script>
+<script>
+    var locations = [
+        { title:"American Pie", location: { lat: 41.304794, lng: -73.254544 }},
+        { title:"Baskin-Robbins", location: { lat: 41.303327, lng: -73.254141 }},
+        { title:"Bella Rosa Pizzeria", location: { lat: 41.316461, lng: -73.215977 }},
+        { title:"Bill's Drive-In", location: { lat: 41.313460, lng: -73.220063 }},
+        { title:"Brothers Pizzeria", location: { lat: 41.294793, lng: -73.244932 }},
+        { title:"Buffalo Bill's", location: { lat: 41.335704, lng: -73.262619 }},
+        { title:"Carl Anthony Trattoria", location: { lat: 41.324285, lng: -73.267761 }},
+        { title:"Chips", location: { lat: 41.291009, lng: -73.235174 }},
+        { title:"Country Pizza", location: { lat: 41.321409, lng: -73.263477 }},
+        { title:"Doughnut Inn", location: { lat: 41.332490, lng: -73.264157 }},
+        { title:"Duchess", location: { lat: 41.303573, lng: -73.253234 }},
+        { title:"Dunkin Donuts", location: { lat: 41.339007, lng: -73.263073 }},
+        { title:"Dunkin Donuts", location: { lat: 41.314348, lng: -73.219316 }},
+        { title:"El Coyote", location: { lat: 41.347795, lng: -73.259264 }},
+        { title:"Healthy Food Chinese Kitchen", location: { lat: 41.335430, lng: -73.262684 }},
+        { title:"Home Plate Deli", location: { lat: 41.315695, lng: -73.217860 }},
+        { title:"Honey Spot Pizza", location: { lat: 41.333262, lng: -73.264881 }},
+        { title:"India Raj Restaurant", location: { lat: 41.323705, lng: -73.267611 }},
+        { title:"Jennie's Pizzeria", location: { lat: 41.309596, lng: -73.220252 }},
+        { title:"Julian's Brick Oven Pizza", location: { lat: 41.328172, lng: -73.266892 }},
+        { title:"Mac Daddy's", location: { lat: 41.335943, lng: -73.262908 }},
+        { title:"McDonalds", location: { lat: 41.310436, lng: -73.220979 }},
+        { title:"McGowan's Pizzaland", location: { lat: 41.311557, lng: -73.222540 }},
+        { title:"Monroe Diner", location: { lat: 41.330569, lng: -73.265101 }},
+        { title:"Mr Mac's Canteen", location: { lat: 41.348058, lng: -73.259389 }},
+        { title:"Nostrano Italian Eatery", location: { lat: 41.305987, lng: -73.255982 }},
+        { title:"Osteria Romana", location: { lat: 41.300708, lng: -73.251679 }},
+        { title:"Paisano's Pizzeria", location: { lat: 41.315072, lng: -73.218515 }},
+        { title:"Prime One Eleven", location: { lat: 41.290924, lng: -73.235425 }},
+        { title:"Purdy Hill Bakery & Deli", location: { lat: 41.303250, lng: -73.224594 }},
+        { title:"Roberto's Restaurant", location: { lat: 41.326796, lng: -73.267646 }},
+        { title:"Royal Falalfel", location: { lat: 41.310980, lng: -73.222482 }},
+        { title:"Sal's Family Pizza", location: { lat: 41.334694, lng: -73.262955 }},
+        { title:"Smithy", location: { lat: 41.305394, lng: -73.255637 }},
+        { title:"Soup Thyme", location: { lat: 41.313440, lng: -73.218676 }},
+        { title:"Starbucks", location: { lat: 41.328073, lng: -73.266901 }},
+        { title:"Subway", location: { lat: 41.314424, lng: -73.219280 }},
+        { title:"Tavern", location: { lat: 41.311838, lng: -73.257860 }},
+        { title:"Twist of Taste", location: { lat: 41.323467, lng: -73.267676 }},
+        { title:"Vazzy's Osteria", location: { lat: 41.320950, lng: -73.264775 }},
+        { title:"Xiang Chinese Kitchen", location: { lat: 41.328442, lng: -73.266828 }}
+    ];
+
+    var map;
+
+    var markers = [];
+
+    function initMap() {
+        map = new google.maps.Map(document.getElementById('map'), {
+            center: {lat: 41.355523, lng: -73.226103},
+            zoom: 14
+        });
+
+        // custom marker image
+        var markerImage = "img/map_marker6.png";
+        var largeInfoWindow = new google.maps.InfoWindow();
+
+        for (var i = 0; i < locations.length; i++) {
+            var marker = new google.maps.Marker({
+                map: map,
+                position: locations[i].location,
+                title: locations[i].title,
+                icon: markerImage,
+                //animation: google.maps.Animation.DROP,
+                id: i
+            });
+            // Push marker into our markers array
+            markers.push(marker);
+            // Creat click event to open an infoWindow at each marker
+            marker.addListener('click', function () {
+                populateInfoWindow(this, largeInfoWindow);
+            });
+        }
+    }
+
+    function populateInfoWindow(marker, infoWindow) {
+        if (infoWindow.marker != marker) {
+            getFourSquareData(marker);
+            infoWindow.marker = marker;
+            infoWindow.setContent('<div class="title">' + marker.title + '</div><div id="infoWin"></div>');
+            infoWindow.open(map, marker);
+            infoWindow.addListener('closeclick', function() {
+                infoWindow.marker = null;
+            });
+        }
+    }
+
+    function getFourSquareData(marker) {
+        var lat = marker.getPosition().lat();
+        var lng = marker.getPosition().lng();
+        var searchRadius = 250;
+        var todaysDate = getFormattedDate();
+        var markerData = {};
+
+        var fourSquareUrl = 'https://api.foursquare.com/v2/venues/search?ll=' + lat + ',' + lng + '&client_id=MWZFALHGOUCNBUJOFJDZ1VLQHZ51SERIIABSE44FWSM1URMK&client_secret=Y4K1HTBUX2KTHTDX0T3Q1KASCBONUU0CBVYIC220IRUBUDJJ&v=' + todaysDate + '&radius=' + searchRadius + '&query=' + marker.title + '&limit=1';
+
+        var httpRequest = new XMLHttpRequest();
+        httpRequest.onreadystatechange = function() {
+            if (this.readyState === 4) {
+                if (this.status === 200) {
+                    var data = JSON.parse(this.responseText);
+                    if (data.response.venues.length > 0) {
+                        markerData.address = data.response.venues[0].location.formattedAddress[0];
+                        markerData.cityState = data.response.venues[0].location.formattedAddress[1];
+                        markerData.phone = data.response.venues[0].contact.formattedPhone;
+                        markerData.website = data.response.venues[0].url;
+                    } else {
+                        markerData.errorMsg = "No Contact Information";
+                    }
+                } else {
+                    markerData.errorMsg = "Data Not Available";
+                }
+                displayData();
+            }
+        };
+        httpRequest.open("GET", fourSquareUrl, true);
+        httpRequest.send();
+
+        function displayData() {
+            var el = document.getElementById('infoWin');
+            el.innerHTML = '';
+
+            if (markerData.errorMsg) {
+                var error = document.createElement('div');
+                error.textContent = markerData.errorMsg;
+                el.appendChild(error);
+            } else {
+                var address = document.createElement('div');
+                address.textContent = markerData.address;
+
+                var cityState = document.createElement('div');
+                cityState.textContent = markerData.cityState;
+
+                var phone = document.createElement('div');
+                phone.textContent = markerData.phone;
+
+                var website = document.createElement('div');
+                website.innerHTML = '<a href="' + markerData.website + '">website</a>';
+
+                var attribution = document.createElement('div');
+                attribution.innerHTML = '<a class="attribution" href="http://foursquare.com">Data by Foursquare</a>';
+
+                if (markerData.address) {
+                    el.appendChild(address);
+                }
+                if (markerData.cityState) {
+                    el.appendChild(cityState);
+                }
+                if (markerData.phone) {
+                    el.appendChild(phone);
+                }
+                if (markerData.website) {
+                    el.appendChild(website);
+                }
+                el.appendChild(attribution);
+            }
+            el.style.opacity = 1;
+        }
+    }
+
+    function getFormattedDate() {
+        var today = new Date();
+        var mm = today.getMonth() + 1;
+        var dd = today.getDate();
+
+        return [today.getFullYear(),
+            (mm > 9 ? '' : '0') + mm,
+            (dd > 9 ? '' : '0') + dd,
+        ].join('');
+    }
+
+    function bounceMarkerOn(id) {
+        for (var i = 0; i < markers.length; i++) {
+            if (id === i) {
+                markers[i].setAnimation(google.maps.Animation.BOUNCE);
+            } else {
+                markers[i].setAnimation(google.maps.Animation.null);
+            }
+        }
+    }
+
+    function bounceMarkerOff(id) {
+        markers[id].setAnimation(google.maps.Animation.null);
+    }
+
+    function showMarkers(markerIds) {
+        var bounds = new google.maps.LatLngBounds();
+        for (var i = 0; i < markers.length; i++) {
+            if (markerIds.indexOf(i) === -1) {
+                markers[i].setMap(null);
+            } else {
+                markers[i].setAnimation(google.maps.Animation.DROP);
+                markers[i].setMap(map);
+                // Extend the boundaries of the map for each marker
+                bounds.extend(markers[i].position);
+            }
+        }
+        if (markerIds.length) {
+            map.fitBounds(bounds);
+            if (map.getZoom() > 16) {
+                map.setZoom(16);
+            }
+        }
+    }
+
+</script>
+
+<script src="js/locationList.js"></script>
+</body>
+</html>
