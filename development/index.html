@@ -8,13 +8,19 @@
     <style type="text/css">
         * {box-sizing: border-box;}
         html, body { height: 100%; margin: 0; padding: 0; font-family: Arial; }
-        #map { height: 100%; }
-        .container {float: left; height: 100%;}
-        .location-list { background: rgba(150,150,150,.75); border: 1px solid #999; height: 100%; padding: 10px 10xp 30px 10px; width: 220px; overflow: auto;}
-        .filter-bar { padding: 2px; background: #666;}
-        #filter {width: 80%; height: 30px;}
+        header {background: #123725; margin: 0; padding: 10px;}
+        h2 {color: #ccc; margin: 0; padding: 0; display: inline-block;}
+        #menu {display: inline-block; margin-right: 5px; padding: 6px 4px; background: #8c8cff; border-radius: 4px; color: #ddd;}
+        #menu:hover {background: #5b5ba6; cursor: pointer;}
+        #map { height: 95%;}
+        #menu-container {float: left; width: 220px; height: 100%; margin-left: -220px; overflow: auto; transition: all .3s;}
+        #menu-container.showMenu {margin-left: 0;}
+        .location-list {background: #666; border: 1px solid #999; padding: 10px 10xp 30px 10px;}
+        h4 {margin: 0; color: #eeeeee; padding: 15px 10px 5px 10px;}
+        .filter-bar { padding: 3px; background: #555;}
+        #filter {width: 100%; height: 30px;}
         label {color: white;}
-        .marker-btn {width: 100%; 0; padding: 6px 0 6px 12px; font-size: 0.8rem; text-align: left; background: #eee; border-bottom: 1px solid #ccc; border-top: 1px solid #fff;}
+        .marker-btn {width: 100%; 0; padding: 6px 10px; font-size: 0.8rem; text-align: left; background: #eee; border-bottom: 1px solid #ccc; border-top: 1px solid #fff;}
         .marker-btn:hover {background: #ddd; cursor: pointer;}
         .title {font-weight: bold; }
         .private{color: #999; font-style: italic;}
@@ -25,9 +31,13 @@
     </style>
 </head>
 <body>
-<div class="container">
+<header>
+    <div id="menu">List</div>
+    <h2>Monroe Dining</h2>
+</header>
+<div id="menu-container">
     <div class="location-list">
-        <h3>Monroe Food</h3>
+        <h4>Locations (<span data-bind="text: results"></span>)</h4>
         <div class="filter-bar">
             <input data-bind="textInput: search" type="input" id="filter" placeholder="Filter">
         </div>
@@ -37,6 +47,14 @@
     </div>
 </div>
 <div id="map"></div>
+<script>
+    // TODO: Move this to the Knockout View
+    var menuBtn = document.getElementById('menu');
+    var menuCtnr = document.getElementById('menu-container');
+    menuBtn.addEventListener('click', function() {
+        menuCtnr.classList.toggle('showMenu');
+    });
+</script>
 <!--<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>-->
 <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD8mRmSgCF0Gj9jE8-LiVLg9Mq5Vq4ncS4&v=3"></script>
 <script src="js/lib/knockout-3.4.2.js"></script>
@@ -90,9 +108,24 @@
     var markers = [];
 
     function initMap() {
+        // Styles for map
+        var styles = [
+            {
+                "featureType": "poi.business",
+                "stylers": [
+                    { "visibility": "off" }
+                ]
+            }
+        ]
+
+        var defaultIcon = makeMarkerIcon('cc6666');
+        var highlightedIcon = makeMarkerIcon('eeee33');
+
         map = new google.maps.Map(document.getElementById('map'), {
             center: {lat: 41.355523, lng: -73.226103},
-            zoom: 14
+            zoom: 14,
+            styles: styles,
+            mapTypeControl: false
         });
 
         // custom marker image
@@ -104,7 +137,7 @@
                 map: map,
                 position: locations[i].location,
                 title: locations[i].title,
-                icon: markerImage,
+                icon: defaultIcon,
                 //animation: google.maps.Animation.DROP,
                 id: i
             });
@@ -113,6 +146,12 @@
             // Creat click event to open an infoWindow at each marker
             marker.addListener('click', function () {
                 populateInfoWindow(this, largeInfoWindow);
+            });
+            marker.addListener('mouseover', function() {
+                this.setIcon(highlightedIcon);
+            });
+            marker.addListener('mouseout', function() {
+                this.setIcon(defaultIcon);
             });
         }
     }
@@ -179,7 +218,7 @@
                 phone.textContent = markerData.phone;
 
                 var website = document.createElement('div');
-                website.innerHTML = '<a href="' + markerData.website + '">website</a>';
+                website.innerHTML = '<a href="' + markerData.website + '" target="_blank">website</a>';
 
                 var attribution = document.createElement('div');
                 attribution.innerHTML = '<a class="attribution" href="http://foursquare.com">Data by Foursquare</a>';
@@ -211,6 +250,16 @@
             (mm > 9 ? '' : '0') + mm,
             (dd > 9 ? '' : '0') + dd,
         ].join('');
+    }
+
+    function makeMarkerIcon(markerColor) {
+        var markerImage = new google.maps.MarkerImage(
+            'http://chart.googleapis.com/chart?chst=d_map_spin&chld=1.15|0|' + markerColor + '|40|_|%E2%80%A2',
+            new google.maps.Size(21,34),
+            new google.maps.Point(0,0),
+            new google.maps.Point(10,34),
+            new google.maps.Size(21,34));
+        return markerImage;
     }
 
     function bounceMarkerOn(id) {
@@ -246,6 +295,7 @@
             }
         }
     }
+
 
 </script>
 
