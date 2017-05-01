@@ -2,6 +2,9 @@
 
 Udacity Front-End Developer Project
 
+## Eating Out in Monroe, CT
+
+
 ## Workflow with Gulp
 
 #### Setup the environment
