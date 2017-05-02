@@ -1,9 +1,12 @@
+// Google map
 var map;
+var largeInfoWindow;
 
 function ViewModel() {
     var self = this;
 
     self.diningList = ko.observableArray([]);
+
     self.search = ko.observable('');
     self.mapAPILoaded = ko.observable(false);
     self.filterAmount = ko.computed(function() {
@@ -14,10 +17,10 @@ function ViewModel() {
         location.id = index;
         self.diningList.push(location);
     });
-    console.log(self.diningList());
 
     self.filterList = ko.computed(function() {
         self.diningList.removeAll();
+
         for (var i = 0; i < locations.length; i++) {
             if (locations[i].name.toLowerCase().indexOf(self.search().toLowerCase()) >= 0) {
                 self.diningList.push(locations[i]);
@@ -27,6 +30,7 @@ function ViewModel() {
             }
         }
         if (self.mapAPILoaded()) {
+            largeInfoWindow.close();
             self.showMarkers();
         }
     });
@@ -38,8 +42,11 @@ function ViewModel() {
     }
 }
 
+
 ViewModel.prototype.initMap = function () {
-    // Styles for map
+    var self = this;
+
+    // Styles for map - turn off businesses as they will compete with custom markers
     var styles = [
         {
             "featureType": "poi.business",
@@ -49,6 +56,7 @@ ViewModel.prototype.initMap = function () {
         }
     ]
 
+    // custom marker colors
     var defaultIcon = makeMarkerIcon('cc6666');
     var highlightedIcon = makeMarkerIcon('eeee33');
 
@@ -59,6 +67,7 @@ ViewModel.prototype.initMap = function () {
         mapTypeControl: false
     });
 
+    // Setup the map markers and add them to the locations array
     for (var i = 0; i < locations.length; i++) {
         var marker = new google.maps.Marker({
             map: map,
@@ -71,7 +80,7 @@ ViewModel.prototype.initMap = function () {
         locations[i].marker = marker;
         // Create click event to open an infoWindow at each marker
         marker.addListener('click', function () {
-            populateInfoWindow(this, largeInfoWindow);
+            self.populateInfoWindow(this, largeInfoWindow);
         });
         marker.addListener('mouseover', function () {
             this.setIcon(highlightedIcon);
@@ -81,6 +90,7 @@ ViewModel.prototype.initMap = function () {
         });
     }
 
+    // Function for creating custom markers
     function makeMarkerIcon(markerColor) {
         var markerImage = new google.maps.MarkerImage(
             'http://chart.googleapis.com/chart?chst=d_map_spin&chld=1.15|0|' + markerColor + '|40|_|%E2%80%A2',
@@ -91,23 +101,26 @@ ViewModel.prototype.initMap = function () {
         return markerImage;
     }
 
-    var largeInfoWindow = new google.maps.InfoWindow();
+    largeInfoWindow = new google.maps.InfoWindow();
 
-    function populateInfoWindow(marker, infoWindow) {
-        if (infoWindow.marker != marker) {
-            getFourSquareData(marker);
-            infoWindow.marker = marker;
-            infoWindow.setContent('<div class="title">' + marker.title + '</div><div id="infoWin"></div>');
-            infoWindow.open(map, marker);
-            infoWindow.addListener('closeclick', function () {
-                infoWindow.marker = null;
-            });
-        }
-    }
     // Map init finished loading
     this.mapAPILoaded(true);
-}
+};
 
+// Create html infowindow to display when a marker or list item is clicked
+ViewModel.prototype.populateInfoWindow = function(marker, infoWindow) {
+    if (infoWindow.marker != marker) {
+        getFourSquareData(marker);
+        infoWindow.marker = marker;
+        infoWindow.setContent('<div class="title">' + marker.title + '</div><div id="infoWin"></div>');
+        infoWindow.open(map, marker);
+        infoWindow.addListener('closeclick', function () {
+            infoWindow.marker = null;
+        });
+    }
+};
+
+//display the appropriate markers
 ViewModel.prototype.showMarkers = function() {
     var bounds = new google.maps.LatLngBounds();
     for (var i = 0; i < locations.length; i++) {
@@ -123,6 +136,7 @@ ViewModel.prototype.showMarkers = function() {
     // If there are no markers in search, bounds will be empty, if so keep current map position
     if (!bounds.isEmpty()) {
         map.fitBounds(bounds);
+        // Adjust map center due to filter list being open
         if (document.getElementById('menu-container').classList.contains('showMenu')) {
             map.panBy(105, 0);
         }
@@ -131,17 +145,18 @@ ViewModel.prototype.showMarkers = function() {
     if (map.getZoom() > 16) {
         map.setZoom(16);
     }
-}
+};
 
-ViewModel.prototype.bounceMarker = function(data, event) {
-    // Bounce marker and highlight button
+ViewModel.prototype.highlightMarker = function(data, event) {
+    map.setZoom(15);
+    map.panTo(data.marker.getPosition());
+    // Adjust center of map due to open list
+    //map.panBy(105, 0);
+    viewModel.populateInfoWindow(data.marker, largeInfoWindow);
     data.marker.setAnimation(google.maps.Animation.BOUNCE);
-    event.target.style.background = '#cc6666';
-    // Return to normal state after 2 seconds
     setTimeout(function() {
-        data.marker.setAnimation(google.maps.Animation.null);
-        event.target.style.background = '#eee';
-    }, 2000)
+        data.marker.setAnimation(null);
+    }, 3000);
 };
 
 function getFourSquareData(marker) {
@@ -226,6 +241,10 @@ function getFourSquareData(marker) {
         }
         el.style.opacity = 1;
     }
+}
+
+function mapError() {
+    alert("An error occurred loading Google Maps. Try again later.")
 }
 
 var viewModel = new ViewModel();

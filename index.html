@@ -17,7 +17,8 @@
         <h4>Locations (<span data-bind="text: filterAmount"></span>)</h4>
         <input data-bind="textInput: search" type="input" class="filter" placeholder="Filter by name">
         <div data-bind="foreach: diningList">
-            <div  class="marker-btn" data-bind="text: name, click: $root.bounceMarker"></div>
+            <div  class="marker-btn" data-bind="text: name, click: $root.highlightMarker"></div>
+            <!--<div  class="marker-btn" data-bind="text: name, click: $root.highlightMarker, style:{background: id == $root.highlighted.id ? '#cc6666' : '#eee'}"></div>-->
         </div>
     </div>
 </div>
@@ -25,6 +26,6 @@
 <script src="js/lib/knockout-3.4.2.js"></script>
 <script src="js/location_data.js"></script>
 <script src="js/app.js"></script>
-<script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD8mRmSgCF0Gj9jE8-LiVLg9Mq5Vq4ncS4&v=3&callback=viewModel.initMap"></script>
+<script async defer onerror="mapError()" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD8mRmSgCF0Gj9jE8-LiVLg9Mq5Vq4ncS4&v=3&callback=viewModel.initMap"></script>
 </body>
 </html>
