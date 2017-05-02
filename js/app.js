@@ -20,7 +20,6 @@ function ViewModel() {
 
     self.filterList = ko.computed(function() {
         self.diningList.removeAll();
-
         for (var i = 0; i < locations.length; i++) {
             if (locations[i].name.toLowerCase().indexOf(self.search().toLowerCase()) >= 0) {
                 self.diningList.push(locations[i]);
@@ -30,7 +29,6 @@ function ViewModel() {
             }
         }
         if (self.mapAPILoaded()) {
-            largeInfoWindow.close();
             self.showMarkers();
         }
     });
@@ -136,10 +134,6 @@ ViewModel.prototype.showMarkers = function() {
     // If there are no markers in search, bounds will be empty, if so keep current map position
     if (!bounds.isEmpty()) {
         map.fitBounds(bounds);
-        // Adjust map center due to filter list being open
-        if (document.getElementById('menu-container').classList.contains('showMenu')) {
-            map.panBy(105, 0);
-        }
     }
     // Limit the zoom level
     if (map.getZoom() > 16) {
@@ -150,8 +144,6 @@ ViewModel.prototype.showMarkers = function() {
 ViewModel.prototype.highlightMarker = function(data, event) {
     map.setZoom(15);
     map.panTo(data.marker.getPosition());
-    // Adjust center of map due to open list
-    //map.panBy(105, 0);
     viewModel.populateInfoWindow(data.marker, largeInfoWindow);
     data.marker.setAnimation(google.maps.Animation.BOUNCE);
     setTimeout(function() {
