@@ -15,10 +15,8 @@
 <div id="menu-container">
     <div class="location-list">
         <h4>Locations (<span data-bind="text: filterAmount"></span>)</h4>
-        <!--<div class="filter-bar">-->
-            <input data-bind="textInput: search" type="input" class="filter" placeholder="Filter">
-        <!--</div>-->
-        <div class="folders" data-bind="foreach: diningList">
+        <input data-bind="textInput: search" type="input" class="filter" placeholder="Filter by name">
+        <div data-bind="foreach: diningList">
             <div  class="marker-btn" data-bind="text: name, click: $root.bounceMarker"></div>
         </div>
     </div>

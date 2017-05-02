@@ -65,7 +65,6 @@ ViewModel.prototype.initMap = function () {
             position: locations[i].location,
             title: locations[i].name,
             icon: defaultIcon,
-            //animation: google.maps.Animation.DROP,
             id: i
         });
         // Add marker to the location object
@@ -81,7 +80,6 @@ ViewModel.prototype.initMap = function () {
             this.setIcon(defaultIcon);
         });
     }
-
 
     function makeMarkerIcon(markerColor) {
         var markerImage = new google.maps.MarkerImage(
@@ -106,7 +104,7 @@ ViewModel.prototype.initMap = function () {
             });
         }
     }
-
+    // Map init finished loading
     this.mapAPILoaded(true);
 }
 
@@ -122,27 +120,28 @@ ViewModel.prototype.showMarkers = function() {
             locations[i].marker.setMap(null);
         }
     }
-    // Limit the zoom level
+    // If there are no markers in search, bounds will be empty, if so keep current map position
     if (!bounds.isEmpty()) {
         map.fitBounds(bounds);
         if (document.getElementById('menu-container').classList.contains('showMenu')) {
             map.panBy(105, 0);
         }
     }
+    // Limit the zoom level
     if (map.getZoom() > 16) {
         map.setZoom(16);
     }
 }
 
 ViewModel.prototype.bounceMarker = function(data, event) {
+    // Bounce marker and highlight button
     data.marker.setAnimation(google.maps.Animation.BOUNCE);
     event.target.style.background = '#cc6666';
+    // Return to normal state after 2 seconds
     setTimeout(function() {
         data.marker.setAnimation(google.maps.Animation.null);
         event.target.style.background = '#eee';
     }, 2000)
-    console.log(data);
-    console.log(event);
 };
 
 function getFourSquareData(marker) {

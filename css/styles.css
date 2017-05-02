@@ -37,7 +37,7 @@ h2 {
 }
 
 #menu-container {
-    background: #555;
+    background: #444;
     float: left;
     height: 100%;
     margin-left: -220px;
@@ -51,7 +51,7 @@ h2 {
 }
 
 .location-list {
-    background: #666;
+    background: #444;
     border: 1px solid #999;
     padding: 10px 10 xp 30px 10px;
 }
@@ -90,10 +90,6 @@ h4 {
 
 .title {
     font-weight: bold;
-}
-
-.hidden {
-    display: none;
 }
 
 .attribution {
