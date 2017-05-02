@@ -3,50 +3,47 @@
 }
 
 html, body {
+    font-family: Arial;
     height: 100%;
     margin: 0;
     padding: 0;
-    font-family: Arial;
 }
 
 header {
-    background: #123725;
+    background: #222;
     margin: 0;
     padding: 10px;
 }
 
 h2 {
-    color: #ccc;
+    color: #ddd;
+    display: inline-block;
     margin: 0;
     padding: 0;
-    display: inline-block;
 }
 
 #menu {
+    background: #8c8cff;
+    border-radius: 4px;
+    color: #eee;
     display: inline-block;
     margin-right: 5px;
     padding: 6px 4px;
-    background: #8c8cff;
-    border-radius: 4px;
-    color: #ddd;
 }
 
 #menu:hover {
-    background: #5b5ba6;
+    background: #6565b8;
     cursor: pointer;
 }
 
-#map {
-    height: 95%;
-}
-
 #menu-container {
+    background: #555;
     float: left;
-    width: 220px;
     height: 100%;
     margin-left: -220px;
     overflow: auto;
     transition: all .3s;
+    width: 220px;
 }
 
 #menu-container.showMenu {
@@ -60,34 +57,26 @@ h2 {
 }
 
 h4 {
-    margin: 0;
     color: #eeeeee;
+    margin: 0;
     padding: 15px 10px 5px 10px;
 }
 
-.filter-bar {
-    padding: 3px;
-    background: #555;
-}
-
-#filter {
-    width: 100%;
+.filter {
+    font-size: 1rem;
     height: 30px;
-}
-
-label {
-    color: white;
+    padding: 3px;
+    width: 100%;
 }
 
 .marker-btn {
-    width: 100%;
-    0;
-    padding: 6px 10px;
-    font-size: 0.8rem;
-    text-align: left;
     background: #eee;
     border-bottom: 1px solid #ccc;
     border-top: 1px solid #fff;
+    font-size: 0.8rem;
+    padding: 6px 10px;
+    text-align: left;
+    width: 100%;
 }
 
 .marker-btn:hover {
@@ -95,18 +84,12 @@ label {
     cursor: pointer;
 }
 
+#map {
+    height: calc(100% - 50px);
+}
+
 .title {
     font-weight: bold;
-}
-
-.private {
-    color: #999;
-    font-style: italic;
-}
-
-.marker-animating {
-    color: #888;
-    background: #fff;
 }
 
 .hidden {
@@ -114,8 +97,8 @@ label {
 }
 
 .attribution {
-    display: block;
     color: #999;
+    display: block;
     font-size: 11px;
     margin-top: 0.75rem;
     text-align: center;

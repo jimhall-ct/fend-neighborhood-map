@@ -5,77 +5,28 @@
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>Neighborhood Map Project</title>
-
     <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
 <header>
-    <div id="menu">List</div>
+    <div id="menu" data-bind="click: openList">List</div>
     <h2>Monroe Dining</h2>
 </header>
 <div id="menu-container">
     <div class="location-list">
         <h4>Locations (<span data-bind="text: filterAmount"></span>)</h4>
-        <div class="filter-bar">
-            <input data-bind="textInput: search" type="input" id="filter" placeholder="Filter">
-        </div>
+        <!--<div class="filter-bar">-->
+            <input data-bind="textInput: search" type="input" class="filter" placeholder="Filter">
+        <!--</div>-->
         <div class="folders" data-bind="foreach: diningList">
-            <div  class="marker-btn" data-bind="text: name, click: $root.toggleAnimateMarker"></div>
+            <div  class="marker-btn" data-bind="text: name, click: $root.bounceMarker"></div>
         </div>
     </div>
 </div>
 <div id="map"></div>
-<script>
-    // TODO: Move this to the Knockout View
-    var menuBtn = document.getElementById('menu');
-    var menuCtnr = document.getElementById('menu-container');
-    menuBtn.addEventListener('click', function() {
-        menuCtnr.classList.toggle('showMenu');
-    });
-</script>
 <script src="js/lib/knockout-3.4.2.js"></script>
 <script src="js/location_data.js"></script>
+<script src="js/app.js"></script>
 <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD8mRmSgCF0Gj9jE8-LiVLg9Mq5Vq4ncS4&v=3&callback=viewModel.initMap"></script>
-<script>
-
-
-    function bounceMarkerOn(id) {
-        for (var i = 0; i < locations.length; i++) {
-            if (id === i) {
-                locations[i].marker.setAnimation(google.maps.Animation.BOUNCE);
-            } else {
-                locations[i].marker.setAnimation(google.maps.Animation.null);
-            }
-        }
-    }
-
-    function bounceMarkerOff(id) {
-        locations[id].marker.setAnimation(google.maps.Animation.null);
-    }
-
-    function showMarkers() {
-        var bounds = new google.maps.LatLngBounds();
-        for (var i = 0; i < locations.length; i++) {
-            if (locations[i].visible) {
-                locations[i].marker.setAnimation(google.maps.Animation.DROP);
-                locations[i].marker.setMap(map);
-                bounds.extend(markers[i].position);
-            } else {
-                locations[i].marker.setMap(null);
-                // Extend the boundaries of the map for each marker
-            }
-        }
-
-        map.fitBounds(bounds);
-        if (map.getZoom() > 16) {
-            map.setZoom(16);
-        }
-
-    }
-
-
-</script>
-
-<script src="js/locationList.js"></script>
 </body>
 </html>
