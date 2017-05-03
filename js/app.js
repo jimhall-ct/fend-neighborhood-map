@@ -8,17 +8,20 @@ function ViewModel() {
     self.diningList = ko.observableArray([]);
 
     // initial population the observable array
-    locations.forEach(function(location, index) {
+    locations.forEach(function (location, index) {
         location.id = index;
         self.diningList.push(location);
     });
-
+    // whether to show/hide location list
+    self.showList = ko.observable(false);
+    // text input filter search
     self.search = ko.observable('');
-    self.filterAmount = ko.computed(function() {
+    // number of filtered search results
+    self.filterAmount = ko.computed(function () {
         return self.diningList().length;
     });
 
-    self.filterList = ko.computed(function() {
+    self.filterList = ko.computed(function () {
         self.diningList.removeAll();
         for (var i = 0; i < locations.length; i++) {
             // check if the search string is part of the location name
@@ -35,26 +38,25 @@ function ViewModel() {
     });
 
     // function to open/close the location list menu
-    self.openList = function() {
-        var menuCtr  = document.getElementById('menu-container');
-        menuCtr.classList.toggle('showMenu');
+    self.openList = function () {
+        self.showList(!self.showList());
         showMarkers();
     }
 
-    self.highlightMarker = function(data, event) {
+    self.highlightMarker = function (data, event) {
         map.setZoom(15);
         // center map to the chosen marker
         map.panTo(data.marker.getPosition());
         populateInfoWindow(data.marker, largeInfoWindow);
         data.marker.setAnimation(google.maps.Animation.BOUNCE);
         // turn off bounce animation after 3 seconds
-        setTimeout(function() {
+        setTimeout(function () {
             data.marker.setAnimation(null);
         }, 3000);
     };
 }
 
-function initMap () {
+function initMap() {
     // Styles for map - turn off businesses as they will compete with custom markers
     var styles = [
         {
@@ -112,7 +114,7 @@ function initMap () {
         return markerImage;
     }
 
-    window.addEventListener('resize', function(e) {
+    window.addEventListener('resize', function (e) {
         showMarkers();
     });
 
@@ -120,7 +122,7 @@ function initMap () {
 };
 
 //display the appropriate markers
-function showMarkers () {
+function showMarkers() {
     var bounds = new google.maps.LatLngBounds();
     for (var i = 0; i < locations.length; i++) {
         if (locations[i].visible) {
@@ -143,7 +145,7 @@ function showMarkers () {
 };
 
 // Create html infowindow to display when a marker or list item is clicked
-function populateInfoWindow (marker, infoWindow) {
+function populateInfoWindow(marker, infoWindow) {
     if (infoWindow.marker != marker) {
         getFourSquareData(marker);
         infoWindow.marker = marker;
@@ -165,7 +167,7 @@ function getFourSquareData(marker) {
     var fourSquareUrl = 'https://api.foursquare.com/v2/venues/search?ll=' + lat + ',' + lng + '&client_id=MWZFALHGOUCNBUJOFJDZ1VLQHZ51SERIIABSE44FWSM1URMK&client_secret=Y4K1HTBUX2KTHTDX0T3Q1KASCBONUU0CBVYIC220IRUBUDJJ&v=' + todaysDate + '&radius=' + searchRadius + '&query=' + marker.title + '&limit=1';
 
     var httpRequest = new XMLHttpRequest();
-    httpRequest.onreadystatechange = function() {
+    httpRequest.onreadystatechange = function () {
         if (this.readyState === 4) {
             if (this.status === 200) {
                 var data = JSON.parse(this.responseText);
