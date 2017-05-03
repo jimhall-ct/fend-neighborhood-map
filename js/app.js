@@ -187,6 +187,9 @@ function getFourSquareData(marker) {
         }
     };
     httpRequest.open("GET", fourSquareUrl, true);
+    httpRequest.onerror = function () {
+        alert('Network Error occurred accessing FourSquare Data Service');
+    };
     httpRequest.send();
 
     function getFormattedDate() {
