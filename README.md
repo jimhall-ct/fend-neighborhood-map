@@ -3,9 +3,16 @@
 ### Overview
 A one page map site project which focuses on learning to use APIs (Google Maps & FourSquare) and working within an JavaScript MVC framework (Knockout.js)
 
-### View Working Project
+### View Working Project Online
 
 On GitHub pages: [Neighborhood Map](https://jimhall-ct.github.io/fend-neighborhood-map)
+
+### View Project Locally
+
+1. Go to [Neighborhood Map Respository](https://github.com/jimhall-ct/fend-neighborhood-map)
+2. Clone or Download Zip of the respository
+3. Expand zip file by double-clicking if necessary
+4. Open index.html file in your browser to view application
 
 ### App Highlights
 
