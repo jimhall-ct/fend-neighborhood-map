@@ -41,9 +41,9 @@ function ViewModel() {
     self.openList = function () {
         self.showList(!self.showList());
         showMarkers();
-    }
+    };
 
-    self.highlightMarker = function (data, event) {
+    self.highlightMarker = function (data) {
         map.setZoom(15);
         // center map to the chosen marker
         map.panTo(data.marker.getPosition());
@@ -65,7 +65,7 @@ function initMap() {
                 {"visibility": "off"}
             ]
         }
-    ]
+    ];
 
     map = new google.maps.Map(document.getElementById('map'), {
         center: {lat: 41.355523, lng: -73.226103},
@@ -105,21 +105,20 @@ function initMap() {
 
     // Function for creating custom markers
     function makeMarkerIcon(markerColor) {
-        var markerImage = new google.maps.MarkerImage(
+        return new google.maps.MarkerImage(
             'http://chart.googleapis.com/chart?chst=d_map_spin&chld=1.15|0|' + markerColor + '|40|_|%E2%80%A2',
             new google.maps.Size(21, 34),
             new google.maps.Point(0, 0),
             new google.maps.Point(10, 34),
             new google.maps.Size(21, 34));
-        return markerImage;
     }
 
-    window.addEventListener('resize', function (e) {
+    window.addEventListener('resize', function () {
         showMarkers();
     });
 
     showMarkers();
-};
+}
 
 //display the appropriate markers
 function showMarkers() {
@@ -127,11 +126,13 @@ function showMarkers() {
     for (var i = 0; i < locations.length; i++) {
         if (locations[i].visible) {
             locations[i].marker.setAnimation(google.maps.Animation.DROP);
-            locations[i].marker.setMap(map);
+            // locations[i].marker.setMap(map);
+            locations[i].marker.setVisible(true);
             // Extend the boundaries of the map for each marker
             bounds.extend(locations[i].marker.position);
         } else {
-            locations[i].marker.setMap(null);
+            // locations[i].marker.setMap(null);
+            locations[i].marker.setVisible(false);
         }
     }
     // If there are no markers in search, bounds will be empty, if so keep current map position
@@ -142,11 +143,11 @@ function showMarkers() {
     if (map.getZoom() > 16) {
         map.setZoom(16);
     }
-};
+}
 
 // Create html infowindow to display when a marker or list item is clicked
 function populateInfoWindow(marker, infoWindow) {
-    if (infoWindow.marker != marker) {
+    if (infoWindow.marker !== marker) {
         getFourSquareData(marker);
         infoWindow.marker = marker;
         infoWindow.setContent('<div class="title">' + marker.title + '</div><div id="infoWin"></div>');
@@ -155,7 +156,7 @@ function populateInfoWindow(marker, infoWindow) {
             infoWindow.marker = null;
         });
     }
-};
+}
 
 function getFourSquareData(marker) {
     var lat = marker.getPosition().lat();
@@ -195,7 +196,7 @@ function getFourSquareData(marker) {
 
         return [today.getFullYear(),
             (mm > 9 ? '' : '0') + mm,
-            (dd > 9 ? '' : '0') + dd,
+            (dd > 9 ? '' : '0') + dd
         ].join('');
     }
 
