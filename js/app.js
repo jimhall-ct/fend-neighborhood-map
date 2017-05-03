@@ -47,7 +47,7 @@ function ViewModel() {
         map.setZoom(15);
         // center map to the chosen marker
         map.panTo(data.marker.getPosition());
-        // run the google event listener code
+        // call the google event listener code
         google.maps.event.trigger(data.marker, 'click');
     };
 }
@@ -201,23 +201,22 @@ function getFourSquareData(marker) {
     }
 
     function displayData() {
-        var msg = '<div class="title">' + marker.title + '</div><div id="infoWinData">';
+        var msg = '<div class="title">' + marker.title + '</div><div>';
         if (markerData.errorMsg) {
-            msg += markerData.errorMsg;
+            msg += '<div class="errorMsg">' + markerData.errorMsg + '</div>';
         } else {
             if (markerData.address) {
-                msg += '<div>' + marker.address + '</div>';
+                msg += '<div>' + markerData.address + '</div>';
             }
             if (markerData.cityState) {
-                msg += '<div>' + marker.cityState + '</div>';
+                msg += '<div>' + markerData.cityState + '</div>';
             }
             if (markerData.phone) {
-                msg += '<div>' + marker.phone + '</div>';
+                msg += '<div>' + markerData.phone + '</div>';
             }
             if (markerData.website) {
                 msg += '<div><a href="' + markerData.website + '" target="_blank">website</a></div>';
             }
-
             msg += '<a class="attribution" href="http://foursquare.com">Data by Foursquare</a>';
         }
         msg += '</div>';

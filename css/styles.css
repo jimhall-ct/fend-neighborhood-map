@@ -104,13 +104,12 @@ h4 {
 /************************************
  * INFO WINDOW
  ************************************/
-#infoWinData {
-    opacity: 0;
-    transition: opacity .5s .1s;
-}
-
 .title {
     font-weight: bold;
+}
+
+.errorMsg {
+    color: #ff8080;
 }
 
 .attribution {
