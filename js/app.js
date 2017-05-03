@@ -47,12 +47,8 @@ function ViewModel() {
         map.setZoom(15);
         // center map to the chosen marker
         map.panTo(data.marker.getPosition());
-        populateInfoWindow(data.marker, largeInfoWindow);
-        data.marker.setAnimation(google.maps.Animation.BOUNCE);
-        // turn off bounce animation after 3 seconds
-        setTimeout(function () {
-            data.marker.setAnimation(null);
-        }, 3000);
+        // run the google event listener code
+        google.maps.event.trigger(data.marker, 'click');
     };
 }
 
@@ -94,6 +90,12 @@ function initMap() {
         // Create click event to open an infoWindow at each marker
         marker.addListener('click', function () {
             populateInfoWindow(this, largeInfoWindow);
+            // turn on bounce animation for marker
+            this.setAnimation(google.maps.Animation.BOUNCE);
+            // turn off bounce animation after 3 seconds
+            setTimeout(function () {
+                this.setAnimation(null);
+            }.bind(this), 2100);
         });
         marker.addListener('mouseover', function () {
             this.setIcon(highlightedIcon);
@@ -126,12 +128,10 @@ function showMarkers() {
     for (var i = 0; i < locations.length; i++) {
         if (locations[i].visible) {
             locations[i].marker.setAnimation(google.maps.Animation.DROP);
-            // locations[i].marker.setMap(map);
             locations[i].marker.setVisible(true);
             // Extend the boundaries of the map for each marker
             bounds.extend(locations[i].marker.position);
         } else {
-            // locations[i].marker.setMap(null);
             locations[i].marker.setVisible(false);
         }
     }
@@ -150,7 +150,7 @@ function populateInfoWindow(marker, infoWindow) {
     if (infoWindow.marker !== marker) {
         getFourSquareData(marker);
         infoWindow.marker = marker;
-        infoWindow.setContent('<div class="title">' + marker.title + '</div><div id="infoWin"></div>');
+        infoWindow.setContent('<div class="title">' + marker.title + '</div>');
         infoWindow.open(map, marker);
         infoWindow.addListener('closeclick', function () {
             infoWindow.marker = null;
@@ -201,44 +201,27 @@ function getFourSquareData(marker) {
     }
 
     function displayData() {
-        var el = document.getElementById('infoWin');
-        el.innerHTML = '';
-
+        var msg = '<div class="title">' + marker.title + '</div><div id="infoWinData">';
         if (markerData.errorMsg) {
-            var error = document.createElement('div');
-            error.textContent = markerData.errorMsg;
-            el.appendChild(error);
+            msg += markerData.errorMsg;
         } else {
-            var address = document.createElement('div');
-            address.textContent = markerData.address;
-
-            var cityState = document.createElement('div');
-            cityState.textContent = markerData.cityState;
-
-            var phone = document.createElement('div');
-            phone.textContent = markerData.phone;
-
-            var website = document.createElement('div');
-            website.innerHTML = '<a href="' + markerData.website + '" target="_blank">website</a>';
-
-            var attribution = document.createElement('div');
-            attribution.innerHTML = '<a class="attribution" href="http://foursquare.com">Data by Foursquare</a>';
-
             if (markerData.address) {
-                el.appendChild(address);
+                msg += '<div>' + marker.address + '</div>';
             }
             if (markerData.cityState) {
-                el.appendChild(cityState);
+                msg += '<div>' + marker.cityState + '</div>';
             }
             if (markerData.phone) {
-                el.appendChild(phone);
+                msg += '<div>' + marker.phone + '</div>';
             }
             if (markerData.website) {
-                el.appendChild(website);
+                msg += '<div><a href="' + markerData.website + '" target="_blank">website</a></div>';
             }
-            el.appendChild(attribution);
+
+            msg += '<a class="attribution" href="http://foursquare.com">Data by Foursquare</a>';
         }
-        el.style.opacity = 1;
+        msg += '</div>';
+        largeInfoWindow.setContent(msg);
     }
 }
 
