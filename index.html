@@ -12,7 +12,7 @@
     <div id="menu" data-bind="click: openList">List</div>
     <h2>Monroe Dining</h2>
 </header>
-<div id="list-container" data-bind="css: {showList: showList}">
+<aside id="list-container" data-bind="css: {showList: showList}">
     <div class="location-list">
         <h4>Locations (<span data-bind="text: filterAmount"></span>)</h4>
         <input data-bind="textInput: search" type="input" class="filter" placeholder="Filter by name">
@@ -20,8 +20,8 @@
             <div  class="marker-btn" data-bind="text: name, click: $root.highlightMarker"></div>
         </div>
     </div>
-</div>
-<div id="map"></div>
+</aside>
+<main id="map"></main>
 <script src="js/lib/knockout-3.4.2.js"></script>
 <script src="js/location_data.js"></script>
 <script src="js/app.js"></script>
