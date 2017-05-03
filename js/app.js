@@ -1,4 +1,4 @@
-// Google map
+// Google map variables
 var map;
 var largeInfoWindow;
 
@@ -7,20 +7,21 @@ function ViewModel() {
 
     self.diningList = ko.observableArray([]);
 
-    self.search = ko.observable('');
-    self.mapAPILoaded = ko.observable(false);
-    self.filterAmount = ko.computed(function() {
-        return self.diningList().length;
-    })
-
+    // initial population the observable array
     locations.forEach(function(location, index) {
         location.id = index;
         self.diningList.push(location);
     });
 
+    self.search = ko.observable('');
+    self.filterAmount = ko.computed(function() {
+        return self.diningList().length;
+    });
+
     self.filterList = ko.computed(function() {
         self.diningList.removeAll();
         for (var i = 0; i < locations.length; i++) {
+            // check if the search string is part of the location name
             if (locations[i].name.toLowerCase().indexOf(self.search().toLowerCase()) >= 0) {
                 self.diningList.push(locations[i]);
                 locations[i].visible = true;
@@ -28,22 +29,32 @@ function ViewModel() {
                 locations[i].visible = false;
             }
         }
-        if (self.mapAPILoaded()) {
-            self.showMarkers();
+        if (map) {
+            showMarkers();
         }
     });
 
+    // function to open/close the location list menu
     self.openList = function() {
         var menuCtr  = document.getElementById('menu-container');
         menuCtr.classList.toggle('showMenu');
-        self.showMarkers();
+        showMarkers();
     }
+
+    self.highlightMarker = function(data, event) {
+        map.setZoom(15);
+        // center map to the chosen marker
+        map.panTo(data.marker.getPosition());
+        populateInfoWindow(data.marker, largeInfoWindow);
+        data.marker.setAnimation(google.maps.Animation.BOUNCE);
+        // turn off bounce animation after 3 seconds
+        setTimeout(function() {
+            data.marker.setAnimation(null);
+        }, 3000);
+    };
 }
 
-
-ViewModel.prototype.initMap = function () {
-    var self = this;
-
+function initMap () {
     // Styles for map - turn off businesses as they will compete with custom markers
     var styles = [
         {
@@ -54,16 +65,18 @@ ViewModel.prototype.initMap = function () {
         }
     ]
 
-    // custom marker colors
-    var defaultIcon = makeMarkerIcon('cc6666');
-    var highlightedIcon = makeMarkerIcon('eeee33');
-
     map = new google.maps.Map(document.getElementById('map'), {
         center: {lat: 41.355523, lng: -73.226103},
         zoom: 14,
         styles: styles,
         mapTypeControl: false
     });
+
+    largeInfoWindow = new google.maps.InfoWindow();
+
+    // custom marker colors
+    var defaultIcon = makeMarkerIcon('cc6666');
+    var highlightedIcon = makeMarkerIcon('eeee33');
 
     // Setup the map markers and add them to the locations array
     for (var i = 0; i < locations.length; i++) {
@@ -78,7 +91,7 @@ ViewModel.prototype.initMap = function () {
         locations[i].marker = marker;
         // Create click event to open an infoWindow at each marker
         marker.addListener('click', function () {
-            self.populateInfoWindow(this, largeInfoWindow);
+            populateInfoWindow(this, largeInfoWindow);
         });
         marker.addListener('mouseover', function () {
             this.setIcon(highlightedIcon);
@@ -99,27 +112,15 @@ ViewModel.prototype.initMap = function () {
         return markerImage;
     }
 
-    largeInfoWindow = new google.maps.InfoWindow();
+    window.addEventListener('resize', function(e) {
+        showMarkers();
+    });
 
-    // Map init finished loading
-    this.mapAPILoaded(true);
-};
-
-// Create html infowindow to display when a marker or list item is clicked
-ViewModel.prototype.populateInfoWindow = function(marker, infoWindow) {
-    if (infoWindow.marker != marker) {
-        getFourSquareData(marker);
-        infoWindow.marker = marker;
-        infoWindow.setContent('<div class="title">' + marker.title + '</div><div id="infoWin"></div>');
-        infoWindow.open(map, marker);
-        infoWindow.addListener('closeclick', function () {
-            infoWindow.marker = null;
-        });
-    }
+    showMarkers();
 };
 
 //display the appropriate markers
-ViewModel.prototype.showMarkers = function() {
+function showMarkers () {
     var bounds = new google.maps.LatLngBounds();
     for (var i = 0; i < locations.length; i++) {
         if (locations[i].visible) {
@@ -141,14 +142,17 @@ ViewModel.prototype.showMarkers = function() {
     }
 };
 
-ViewModel.prototype.highlightMarker = function(data, event) {
-    map.setZoom(15);
-    map.panTo(data.marker.getPosition());
-    viewModel.populateInfoWindow(data.marker, largeInfoWindow);
-    data.marker.setAnimation(google.maps.Animation.BOUNCE);
-    setTimeout(function() {
-        data.marker.setAnimation(null);
-    }, 3000);
+// Create html infowindow to display when a marker or list item is clicked
+function populateInfoWindow (marker, infoWindow) {
+    if (infoWindow.marker != marker) {
+        getFourSquareData(marker);
+        infoWindow.marker = marker;
+        infoWindow.setContent('<div class="title">' + marker.title + '</div><div id="infoWin"></div>');
+        infoWindow.open(map, marker);
+        infoWindow.addListener('closeclick', function () {
+            infoWindow.marker = null;
+        });
+    }
 };
 
 function getFourSquareData(marker) {
